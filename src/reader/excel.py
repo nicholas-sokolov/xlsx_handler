@@ -1,3 +1,4 @@
+import logging
 from zipfile import ZipFile
 
 from lxml import etree
@@ -6,6 +7,8 @@ from ..row import Row
 from ..cell import Cell
 from ..workbook.workbook import Workbook
 from ..worksheet.worksheet import Worksheet
+
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
 
 
 def find_file_path(file_list, pattern):
@@ -98,6 +101,7 @@ class ExcelReader:
 
                     row.add_cell(cell)
                 worksheet.add_row(row)
+            self.workbook.add_worksheet(worksheet)
 
     def find_relationship(self, rel_id):
         for rel in self._rels:
@@ -107,7 +111,10 @@ class ExcelReader:
 
 
 def load_workbook(filename):
-    reader = ExcelReader(filename)
-    return reader.workbook
-
-
+    try:
+        reader = ExcelReader(filename)
+    except Exception as err:
+        logging.fatal(str(err))
+        exit(1)
+    else:
+        return reader.workbook
