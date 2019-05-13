@@ -1,8 +1,10 @@
 from ..cell import Cell
+from ..row import Row
 
 
 class Worksheet:
-    def __init__(self, name, path):
+    def __init__(self, workbook, name, path):
+        self.parent = workbook
         self.name = name
         self.path = path
         self._rows = []
@@ -20,9 +22,17 @@ class Worksheet:
                 return row
 
     def cell(self, row, column):
-        row_index = row - 1
         column_index = column - 1
-        row = self.get_row(row_index)
-        if row is None:
-            return Cell()
-        return row[column_index]
+        row_item = self.get_row(row)
+        if row_item is None:
+            new_row = Row(str(row))
+            new_cell = Cell(row, column)
+            new_row.add_cell(new_cell)
+            self.add_row(new_row)
+            return new_cell
+        try:
+            return row_item[column_index]
+        except IndexError:
+            new_cell = Cell(row, column)
+            row_item.add_cell(new_cell)
+            return new_cell

@@ -1,3 +1,4 @@
+import re
 import logging
 from zipfile import ZipFile
 
@@ -5,10 +6,14 @@ from lxml import etree
 
 from ..row import Row
 from ..cell import Cell
+from ..cell import get_column_number
 from ..workbook.workbook import Workbook
 from ..worksheet.worksheet import Worksheet
 
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname).1s %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
+
+
+COORDINATE_regex = r'(?P<column_latter>[a-zA-Z]+)(?P<row>\d+)'
 
 
 def find_file_path(file_list, pattern):
@@ -21,13 +26,13 @@ def find_file_path(file_list, pattern):
 
 class ExcelReader:
     def __init__(self, filename):
-        self._filename = filename
-        self._zip_archive = ZipFile(self._filename, 'r')
+        self.filename = filename
+        self._zip_archive = ZipFile(self.filename, 'r')
         self._zip_files = self._zip_archive.namelist()
         self._shared_strings = []
         self._shared_values = {}
         self._rels = []
-        self.workbook = Workbook()
+        self.workbook = Workbook(self)
         self.read()
 
     def read(self):
@@ -50,6 +55,7 @@ class ExcelReader:
 
     def read_shared_string(self):
         shared_strings_path = find_file_path(self._zip_files, 'sharedStrings.xml')
+        self._shared_strings.append(shared_strings_path)
         shared_strings_raw = self._zip_archive.read(shared_strings_path)
         root = etree.fromstring(shared_strings_raw)
         nsmap = {k if k is not None else 'sh': v for k, v in root.nsmap.items()}
@@ -77,7 +83,7 @@ class ExcelReader:
         :return:
         """
         for ws_name, ws_path in worksheets.items():
-            worksheet = Worksheet(ws_name, ws_path)
+            worksheet = Worksheet(self.workbook, ws_name, ws_path)
 
             worksheet_raw = self._zip_archive.read(ws_path)
             root = etree.fromstring(worksheet_raw)
@@ -86,8 +92,10 @@ class ExcelReader:
 
                 row = Row(row_node.attrib['r'])
                 for cell_node in row_node.xpath('ws:c', namespaces=nsmap):
-                    cell = Cell()
-                    cell.coordinate = cell_node.attrib['r']
+                    column_latter = re.fullmatch(COORDINATE_regex, cell_node.attrib['r'])['column_latter']
+                    row_num = re.fullmatch(COORDINATE_regex, cell_node.attrib['r'])['row']
+                    column_num = get_column_number(column_latter)
+                    cell = Cell(int(row_num), int(column_num))
                     cell.type = cell_node.attrib.get('t')
 
                     value_node = cell_node.find('ws:v', namespaces=nsmap)

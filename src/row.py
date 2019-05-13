@@ -8,11 +8,11 @@ class Row:
         self._cells = []
 
     def __getitem__(self, item):
-        try:
-            return self._cells[item]
-        except IndexError:
-            logging.debug('No such column')
-            return Cell()
+        # try:
+        return self._cells[item]
+        # except IndexError:
+        #     logging.debug('No such column')
+        #     return Cell()
 
     def add_cell(self, cell):
         self._cells.append(cell)
