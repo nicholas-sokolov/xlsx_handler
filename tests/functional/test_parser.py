@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from src import load_workbook
 
-EXAMPLE_FILE_PATH = os.path.join(os.path.pardir, 'xls_example')
+EXAMPLE_FILE_PATH = os.path.join('tests', 'xls_example')
 XLSM_ORIG_FILE_PATH = os.path.join(EXAMPLE_FILE_PATH, 'original.xlsm')
 XLSM_TEMP_FILE_PATH = os.path.join(EXAMPLE_FILE_PATH, 'original_temp.xlsm')
 XLSM_OUTPUT_FILE_PATH = os.path.join(EXAMPLE_FILE_PATH, 'output.xlsm')
