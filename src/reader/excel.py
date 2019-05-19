@@ -99,6 +99,8 @@ class ExcelReader:
                     cell.type = cell_node.attrib.get('t')
 
                     value_node = cell_node.find('ws:v', namespaces=nsmap)
+                    if value_node is None:
+                        value_node = cell_node.find('ws:is', namespaces=nsmap).find('ws:t', namespaces=nsmap)
                     if cell_node.attrib.get('t', False) == 's':
                         cell.value = self._shared_values.get(value_node.text)
                     else:
