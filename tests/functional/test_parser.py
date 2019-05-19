@@ -1,5 +1,6 @@
 import os
 import shutil
+import unittest
 from unittest import TestCase
 
 from src import load_workbook
@@ -60,3 +61,7 @@ class TestParser(TestCase):
 
         self.assertEqual(name, expected_name)
         self.assertEqual(value, expected_value)
+
+
+if __name__ == '__main__':
+    unittest.main()
