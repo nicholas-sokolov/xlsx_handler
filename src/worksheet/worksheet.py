@@ -8,13 +8,20 @@ class Worksheet:
         self.name = name
         self.path = path
         self._rows = []
+        self.__max_row = 0
 
     @property
     def max_row(self):
-        return len(self._rows)
+        return self.__max_row
+
+    @max_row.setter
+    def max_row(self, value):
+        if self.max_row < value:
+            self.__max_row = value
 
     def add_row(self, row):
         self._rows.append(row)
+        self.max_row = int(row.index)
 
     def get_row(self, row_number):
         for row in self._rows:
