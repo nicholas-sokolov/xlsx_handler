@@ -36,6 +36,9 @@ class Workbook:
     def add_worksheet(self, sheet):
         self._sheets.append(sheet)
 
+    def close(self):
+        self.reader._zip_archive.close()
+
     def save(self, filename):
         shutil.copy(self.reader.filename, filename)
 
@@ -62,11 +65,8 @@ class Workbook:
                             new_value = etree.SubElement(root_for_value, 't').text = str(cell.value).encode()
                         else:
                             new_value = etree.SubElement(root_for_value, 'v').text = str(cell.value).encode()
-            print(etree.tostring(root, pretty_print=True).decode())
             remove_from_zip(filename, worksheet.path)
 
             with ZipFile(filename, 'a', ZIP_DEFLATED, allowZip64=True) as f:
                 with f.open(worksheet.path, 'w') as file:
                     file.write(etree.tostring(root, pretty_print=True))
-
-        raise NotImplementedError
